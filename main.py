@@ -90,11 +90,16 @@ if __name__ == "__main__":
     executor = ThreadPoolExecutor(max_workers=16)
     width = args.width
     inflight = threading.Semaphore(60)
+    running = True
 
 def frame_to_text(frame_idx, img, cols=100): #wrapper for image_to_text
-    text = image_to_text(img, cols=cols)
-    with buffer_lock:
-        frame_buffer[frame_idx] = text
+    try:
+        text = image_to_text(img, cols=cols)
+        with buffer_lock:
+            frame_buffer[frame_idx] = text
+    except KeyboardInterrupt:
+        global running
+        running = False #user wants to quit, disable just incase main thread doesn't catch it
 
 def reconnect_stream():
     """Reconnect to the YouTube stream and return a new container and video stream."""
@@ -107,9 +112,9 @@ def reconnect_stream():
     return new_container, new_video_stream
 
 def producer():
-    global container, video_stream
+    global container, video_stream, running
     last_frame_idx = 0
-    while True:
+    while running:
         try:
             for frame_idx, frame in enumerate(container.decode(video=0), start=last_frame_idx):
                 while len(frame_buffer.keys()) > 120: #limit buffered frames (2s at 60fps)
@@ -122,6 +127,11 @@ def producer():
             print(f"Stream error: {e}. Reconnecting...")
             time.sleep(1)  # Wait before reconnecting
             container, video_stream = reconnect_stream()
+        except KeyboardInterrupt:
+            running = False
+            break
+        except Exception as e:
+            print(f"Oops (Decoder): {e}")
 
 if __name__ == "__main__":
     quality = args.quality
@@ -134,7 +144,7 @@ if __name__ == "__main__":
     idx=-1
     
     try:
-        while True:
+        while running:
             if not args.igndelt:
                 current_time = time.time() - start_time
                 percent_done = min(1,max(0,current_time/(video_stream.frames/fps)))
@@ -162,4 +172,11 @@ if __name__ == "__main__":
             time.sleep(0.05)
     except KeyboardInterrupt:
         print("\033[H\033[2JExiting.")
-    
+    except Exception as e:
+        print(f"Oops: {e}")
+    finally:
+        running = False
+        with buffer_lock:
+            frame_buffer = {}
+        decoder_thread.join()
+        executor.shutdown(wait=True)
