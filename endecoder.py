@@ -45,10 +45,9 @@ def image_to_text(image, cols=100):
     rows = max(1, int(aspect * cols / 2))
     small = resize(image, (cols, rows * 2), interpolation=INTER_NEAREST)
     row_pairs = [(small[2*i], small[2*i+1]) for i in range(rows)]
-    return '\n'.join(list(pool.map(_worker, row_pairs, chunksize=1)))
+    return '\n'.join(list(pool.map(_worker, row_pairs, ansi, chunksize=16)))
 
-def _worker(rows):
-    global ansi
+def _worker(rows,ansi):
     out = []
     quality = 256//len(ansi)
     last_fg = last_bg = None

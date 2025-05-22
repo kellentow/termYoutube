@@ -37,3 +37,4 @@ A terminal client for YouTube that can be used almost anywhere.
 ## Known Issues
 * High CPU usage from real time decoding
 * Stream errors from unstable network
+* ~6GB of ram usage
