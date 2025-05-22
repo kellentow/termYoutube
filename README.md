@@ -34,6 +34,19 @@ A terminal client for YouTube that can be used almost anywhere.
 3. Select the video from the top 5 results
 4. Watch it
 
+## Compatable Terminals
+### Windows
+* Windows Terminal
+* ConEmu
+* mintty
+* Alacritty
+* kitty
+### Linux
+Linux terminals with ANSI support are much more common
+* xterm
+* gnome terminal
+* konsole
+
 ## Known Issues
 * High CPU usage from real time decoding
 * Stream errors from unstable network

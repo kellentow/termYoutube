@@ -118,9 +118,9 @@ def producer():
                 img = frame.to_ndarray(format='rgb24')
                 future = executor.submit(frame_to_text, frame_idx, img, width)
                 future.add_done_callback(lambda _: inflight.release())
-        except (av.AVError, OSError) as e:
+        except (av.error.EOFError, OSError) as e:
             print(f"Stream error: {e}. Reconnecting...")
-            time.sleep(2)  # Wait before reconnecting
+            time.sleep(1)  # Wait before reconnecting
             container, video_stream = reconnect_stream()
 
 if __name__ == "__main__":
