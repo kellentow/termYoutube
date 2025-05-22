@@ -25,6 +25,7 @@ A terminal client for YouTube that can be used almost anywhere.
     ```
 
 ## Usage
+![Demo](/assets/readme/demo1.gif)
 1. Run main.py
     ```bash
     python main.py

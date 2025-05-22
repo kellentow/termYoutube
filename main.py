@@ -55,7 +55,7 @@ def youtube_search_and_select():
 # Fetch stream URL via yt-dlp
 # ------------------------------------------------------------------
 ydl_opts = {
-    'format': 'best/best',
+    'format': 'best/worst',
     'quiet': True,
     'no_warnings': True,
     'skip_download': True,
