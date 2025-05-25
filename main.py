@@ -1,9 +1,6 @@
-import yt_dlp
-import time, sys, threading
-import av
+import yt_dlp, time, sys, threading, av, os, argparse, ctypes
 from concurrent.futures import ThreadPoolExecutor
 from endecoder import image_to_text, gen_ansi
-import argparse
 
 parser = argparse.ArgumentParser(prog='TermYoutube',description='Shows youtube videos in the terminal!',epilog='Thanks for downloading!')
 parser.add_argument('-q','--quality', type=int, default=5,help="color quality of the outputted video")
@@ -11,6 +8,19 @@ parser.add_argument('-w','--width', type=int, default=144,help="width of the out
 parser.add_argument('-u','--url',help="Provide a Youtube video url (if not supplied requires interactive terminal)")
 parser.add_argument('-i','--igndelt', action='store_true', help="Ignores time passing and outputs the video frame for frame")
 args = parser.parse_args()
+
+if os.name == 'nt':
+    import ctypes
+
+    # Enable ANSI escape sequences on < Windows 10
+    kernel32 = ctypes.windll.kernel32
+    handle = kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE = -11
+    mode = ctypes.c_ulong()
+    kernel32.GetConsoleMode(handle, ctypes.byref(mode))
+    kernel32.SetConsoleMode(handle, mode.value | 0x0004)  # ENABLE_VIRTUAL_TERMINAL_PROCESSING
+sys.stdout.write("\033[?25l") # no more cursor
+sys.stdout.write("\033[2J\033[H") # clear screen
+sys.stdout.flush()
 
 # ------------------------------------------------------------------
 # Helpers: helps with misc stuff
